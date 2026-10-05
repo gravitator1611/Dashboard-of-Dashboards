@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ionic dashboards</title>
+<script>try { var t = localStorage.getItem("ionic-hub-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -453,9 +454,8 @@ q.addEventListener("keydown", e => {
 document.addEventListener("keydown", e => { if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); } });
 
 const THEME_KEY = "ionic-hub-theme";
-try { const t = localStorage.getItem(THEME_KEY); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
 document.getElementById("themeBtn").addEventListener("click", () => {
-  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const cur = document.documentElement.dataset.theme || "dark";
   const next = cur === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = next;
   try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
