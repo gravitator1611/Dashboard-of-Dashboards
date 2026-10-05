@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ionic dashboards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EBEFF3; --surface: #FFFFFF; --ink: #142033; --ink-soft: #55627A; --line: #D3DAE3;
+    --art-bg: #F4F6F9; --art-line: #DCE2EA;
+    --c-navigate: #2E6B57; --c-attr: #3E4FA8; --c-port: #A8701E; --c-report: #8A3D6B;
+    --ok: #2E9A62; --warn: #D59A1E; --bad: #C8463D; --focus: #3E4FA8;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1622; --surface: #172131; --ink: #E6ECF4; --ink-soft: #97A4B8; --line: #26334A;
+      --art-bg: #1C2839; --art-line: #2B3A52;
+      --c-navigate: #6CC3A4; --c-attr: #8E9CF0; --c-port: #E2AE5C; --c-report: #DB8BBB;
+      --ok: #5CC48C; --warn: #E8B54A; --bad: #EC7A70; --focus: #8E9CF0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1622; --surface: #172131; --ink: #E6ECF4; --ink-soft: #97A4B8; --line: #26334A;
+    --art-bg: #1C2839; --art-line: #2B3A52;
+    --c-navigate: #6CC3A4; --c-attr: #8E9CF0; --c-port: #E2AE5C; --c-report: #DB8BBB;
+    --ok: #5CC48C; --warn: #E8B54A; --bad: #EC7A70; --focus: #8E9CF0;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 16px); scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Schibsted Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+
+  .wrap { max-width: 1220px; margin: 0 auto; padding: 48px 28px 72px; display: grid; grid-template-columns: 230px 1fr; gap: 56px; }
+
+  .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 40px); align-self: start; }
+  .brand { font-weight: 800; font-size: 2.6rem; line-height: 0.95; letter-spacing: -0.035em; margin: 0 0 10px; }
+  .brand span { display: block; color: var(--ink-soft); font-weight: 500; }
+  .count { color: var(--ink-soft); font-size: 0.92rem; margin: 0 0 32px; }
+  .groups { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .groups a { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 8px; text-decoration: none; font-weight: 500; color: var(--ink-soft); }
+  .groups a:hover { background: var(--surface); color: var(--ink); }
+  .groups .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--g); flex: none; }
+  .groups .n { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 0.85rem; }
+
+  .search { position: relative; margin-bottom: 44px; }
+  .search input { width: 100%; font: inherit; font-size: 1.15rem; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px 64px 16px 50px; }
+  .search input::placeholder { color: var(--ink-soft); }
+  .search input:focus { outline: none; border-color: var(--focus); }
+  .search svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--ink-soft); }
+  .search kbd { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font: inherit; font-size: 0.8rem; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; }
+
+  section { margin-bottom: 52px; }
+  section[hidden] { display: none; }
+  h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 16px; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.015em; }
+  h2::before { content: ""; width: 22px; height: 6px; border-radius: 3px; background: var(--g); align-self: center; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+  .card { position: relative; }
+
+  .tile {
+    display: flex; flex-direction: column; height: 100%;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    text-decoration: none; overflow: hidden; transition: border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .tile:hover { border-color: var(--g); transform: translateY(-3px); box-shadow: 0 10px 24px -14px var(--g); }
+  @media (prefers-reduced-motion: reduce) { .tile { transition: none; } .tile:hover { transform: none; } }
+
+  .art {
+    position: relative; aspect-ratio: 16 / 9; background: var(--art-bg);
+    border-bottom: 1px solid var(--line); color: var(--g);
+  }
+  .art svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; font-family: inherit; }
+  
+  .body { position: relative; padding: 16px 52px 18px 20px; }
+  .tile h3 { margin: 0 0 2px; font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; }
+  .tile p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; }
+  .open { position: absolute; right: 18px; top: 18px; color: var(--ink-soft); opacity: .55; transition: opacity .15s, color .15s; }
+  .tile:hover .open { opacity: 1; color: var(--g); }
+
+  .pin {
+    position: absolute; right: 10px; top: 10px; z-index: 2;
+    width: 34px; height: 34px; border-radius: 9px; border: 0; cursor: pointer; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--ink-soft);
+    opacity: 0; transition: opacity .15s;
+  }
+  .card:hover .pin, .pin:focus-visible, .pin[aria-pressed="true"] { opacity: 1; }
+  .pin[aria-pressed="true"] { color: var(--c-port); }
+  .pin:hover { color: var(--ink); }
+  @media (hover: none) { .pin { opacity: .85; } }
+
+  .empty { color: var(--ink-soft); font-size: 1.05rem; padding: 24px 0; }
+  .empty[hidden] { display: none; }
+  .theme-btn { margin-top: 28px; font: inherit; font-size: 0.88rem; color: var(--ink-soft); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  .theme-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; gap: 28px; padding: 28px 18px 56px; }
+    .rail { position: static; }
+    .brand { font-size: 2.1rem; }
+    .count { margin-bottom: 18px; }
+    .groups { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .groups a { background: var(--surface); border: 1px solid var(--line); white-space: nowrap; padding: 7px 12px; }
+    .theme-btn, .search kbd { display: none; }
+    .search input { padding-right: 18px; }
+    .grid { grid-template-columns: 1fr; }
+    
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="rail">
+    <h1 class="brand">Ionic<span>dashboards</span></h1>
+    <p class="count" id="count"></p>
+    <nav aria-label="Dashboard groups"><ul class="groups" id="groupNav"></ul></nav>
+    <button class="theme-btn" id="themeBtn" type="button">Switch theme</button>
+  </aside>
+  <main>
+    <div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Find a dashboard" aria-label="Find a dashboard" autocomplete="off">
+      <kbd>/</kbd>
+    </div>
+    <div id="sections"></div>
+    <p class="empty" id="empty" hidden>No dashboard matches that. Clear the search to see all of them.</p>
+  </main>
+</div>
+
+<script>
+/* ---------- Illustrations: each mirrors its dashboard, with real labels ---------- */
+const W = 320, H = 180;
+const S = (inner) => `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${inner}</svg>`;
+const soft = (p) => `color-mix(in srgb, currentColor ${p}%, transparent)`;
+const T = (x, y, s, { size = 7.5, fill = "var(--ink)", weight = 500, anchor = "start", op = 1 } = {}) =>
+  `<text x="${x}" y="${y}" font-size="${size}" font-weight="${weight}" fill="${fill}" text-anchor="${anchor}" opacity="${op}">${s}</text>`;
+const tw = (s, size) => s.length * size * 0.56;
+// row of pills; returns svg; style: "fill" | "line" | "ghost"
+const chips = (x, y, items, size = 7, active = 0, style = "fill") => {
+  let cx = x, out = "";
+  items.forEach((s, i) => {
+    const w = tw(s, size) + 14, on = i === active;
+    const bg = on ? (style === "line" ? "var(--surface)" : "currentColor") : (style === "line" ? "var(--surface)" : "var(--art-line)");
+    const stroke = style === "line" ? `stroke="${on ? "currentColor" : "var(--art-line)"}"` : "";
+    out += `<rect x="${cx}" y="${y}" width="${w}" height="${size + 7}" rx="${(size + 7) / 2}" fill="${bg}" ${stroke}/>` +
+      T(cx + w / 2, y + size + 2.2, s, { size, anchor: "middle", weight: on ? 600 : 500, fill: on && style !== "line" ? "var(--surface)" : on ? "currentColor" : "var(--ink-soft)" });
+    cx += w + 5;
+  });
+  return out;
+};
+const band = (title, right, h = 24, fill = "currentColor") =>
+  `<rect x="0" y="0" width="${W}" height="${h}" fill="${fill}"/>` +
+  T(14, h / 2 + 3.2, title, { size: 9, weight: 700, fill: "var(--surface)" }) +
+  (right ? T(W - 14, h / 2 + 3, right, { size: 7, fill: "var(--surface)", anchor: "end", op: .8 }) : "");
+const kpiRow = (y, h, items) => {
+  const gap = 6, bw = (W - 28 - gap * (items.length - 1)) / items.length;
+  return items.map(([label, value, accent, dark], i) => {
+    const x = 14 + i * (bw + gap);
+    return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="5" fill="${dark ? "var(--ink)" : "var(--surface)"}" stroke="${dark ? "none" : "var(--art-line)"}"/>` +
+      (accent ? `<rect x="${x + 6}" y="${y + 7.5}" width="4" height="4" rx="1" fill="${accent}"/>` : "") +
+      T(x + (accent ? 13 : 6), y + 11.5, label, { size: 6.2, fill: dark ? "var(--surface)" : "var(--ink-soft)", op: dark ? .75 : 1 }) +
+      T(x + 6, y + h - 7, value, { size: 10, weight: 700, fill: dark ? "var(--surface)" : (accent === "var(--bad)" ? "var(--bad)" : "var(--ink)") });
+  }).join("");
+};
+const grid = (x0, x1, y0, y1, n) => Array.from({ length: n }, (_, i) => {
+  const y = y0 + (i * (y1 - y0)) / (n - 1);
+  return `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="var(--art-line)"/>`;
+}).join("");
+const legend = (xEnd, y, items) => {
+  let x = xEnd, out = "";
+  [...items].reverse().forEach(([label, color, dashed]) => {
+    const w = tw(label, 6.5);
+    x -= w;
+    out += T(x, y, label, { size: 6.5, fill: "var(--ink-soft)" });
+    x -= 12;
+    out += dashed
+      ? `<line x1="${x}" x2="${x + 9}" y1="${y - 2.3}" y2="${y - 2.3}" stroke="${color}" stroke-width="1.6" stroke-dasharray="2 2"/>`
+      : `<rect x="${x}" y="${y - 5}" width="9" height="5" rx="1.5" fill="${color}"/>`;
+    x -= 8;
+  });
+  return out;
+};
+
+const ART = {
+  navigate: () => {
+    const f = [0,8,6,14,30,26,27,40,22,25,21,24,18,30,46,44,40,48,45,52,58,56,62,61,64];
+    const b = [0,10,9,17,33,28,30,38,20,24,23,27,22,33,44,42,38,46,47,55,63,60,63,60,58];
+    const x = (i) => 14 + i * (292 / 24), y = (v) => 168 - v * 0.95;
+    const pts = (a) => a.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+    return S(band("Ionic Navigate AIF", "Portfolio dashboard") +
+      kpiRow(32, 34, [["Fund AUM","₹ Cr"],["Fund G/L","+ %","var(--ok)"],["Equity","%"],["Cash","%"],["Strategies","5 + 1"]]) +
+      T(14, 84, "NAV vs BSE 500 TRI", { size: 8.5, weight: 700 }) +
+      legend(306, 84, [["Fund", "currentColor"], ["BSE 500 TRI", "var(--warn)"]]) +
+      grid(14, 306, 96, 168, 4) +
+      `<polygon points="14,168 ${pts(f)} 306,168" fill="${soft(12)}"/>
+       <polyline points="${pts(b)}" fill="none" stroke="var(--warn)" stroke-width="1.6" stroke-linejoin="round"/>
+       <polyline points="${pts(f)}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+       <circle cx="${x(24)}" cy="${y(64)}" r="3" fill="currentColor"/>`);
+  },
+
+  attribution: () => {
+    const d = [[-3,0],[4,2],[6,3],[9,0],[-2,1],[2,1],[6,8],[5,6],[-2,3],[3,9],[4,10],[-1,1],[-6,0],[16,2],[3,4],[-5,0],[2,1]];
+    const zero = 146, s = 2.6, step = 290 / d.length;
+    return S(T(14, 20, "Attribution analysis", { size: 10.5, weight: 700 }) +
+      T(306, 20, "Ionic Allocate", { size: 7, fill: "var(--ink-soft)", anchor: "end" }) +
+      chips(14, 30, ["Month-on-month", "Custom range", "Time windows"], 7, 0) +
+      chips(14, 50, ["All", "Aggressive", "Equity", "Moderate"], 6.5, 0, "line") +
+      T(14, 82, "Monthly portfolio contribution", { size: 8, weight: 700 }) +
+      legend(306, 82, [["Equity", "currentColor"], ["Debt and others", "var(--warn)"]]) +
+      grid(14, 306, 92, 172, 4) +
+      d.map(([a, b], i) => {
+        const x = 18 + i * step, w = step * 0.6;
+        if (a < 0) return `<rect x="${x}" y="${zero}" width="${w}" height="${-a * s}" rx="1.5" fill="currentColor"/>`;
+        return `<rect x="${x}" y="${zero - a * s}" width="${w}" height="${a * s}" rx="1.5" fill="currentColor"/>` +
+          (b ? `<rect x="${x}" y="${zero - (a + b) * s}" width="${w}" height="${b * s}" rx="1.5" fill="var(--warn)"/>` : "");
+      }).join("") +
+      `<line x1="14" x2="306" y1="${zero}" y2="${zero}" stroke="var(--ink-soft)" opacity=".6"/>`);
+  },
+
+  risk: () => {
+    const d = [4,8,14,16,-5,-3,10,9,2,14,16,-3,-18,20,5,-7,3,-9];
+    const zero = 128, s = 1.9, step = 290 / d.length;
+    const line = d.map((v, i) => `${18 + i * step + step * 0.3},${zero - v * s * 0.5 - 6}`).join(" ");
+    return S(band("Attribution and risk", "Multi-strategy performance") +
+      chips(14, 32, ["Aggressive", "Equity", "Moderate"], 6.5, -1, "line") +
+      chips(176, 32, ["Month-on-month", "Risk"], 6.5, 0) +
+      T(14, 68, "Monthly contribution by asset class", { size: 8, weight: 700 }) +
+      legend(306, 68, [["Equity", soft(80)], ["Debt", "var(--warn)"], ["Trend", "var(--bad)", true]]) +
+      grid(14, 306, 80, 172, 4) +
+      d.map((v, i) => {
+        const x = 18 + i * step, h = Math.max(Math.abs(v) * s, 2);
+        return `<rect x="${x}" y="${v >= 0 ? zero - h : zero}" width="${step * 0.6}" height="${h}" rx="1.5" fill="${i % 3 === 1 ? "var(--warn)" : soft(80)}"/>`;
+      }).join("") +
+      `<polyline points="${line}" fill="none" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="3 3"/>`);
+  },
+
+  returns: () => {
+    const cols = ["1M","3M","6M","CYTD","FYTD","1Y","SI"];
+    const rows = [["Aggressive",[-3,-1,7,4,10,11,15]],["Equity",[-3,-1,9,2,12,6,9]],["Moderate",[-2,0,5,6,8,18,21]]];
+    const cx = (c) => 104 + c * 29;
+    return S(band("Ionic Allocate portfolio", "Scheme returns and risk") +
+      `<rect x="14" y="32" width="146" height="18" rx="5" fill="var(--surface)" stroke="currentColor"/>` +
+      T(87, 44, "Scheme returns", { size: 7.5, weight: 700, anchor: "middle", fill: "currentColor" }) +
+      `<rect x="160" y="32" width="146" height="18" rx="5" fill="var(--art-line)"/>` +
+      T(233, 44, "Risk metrics", { size: 7.5, anchor: "middle", fill: "var(--ink-soft)" }) +
+      `<rect x="14" y="58" width="292" height="114" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      T(22, 74, "Returns by time window", { size: 8, weight: 700 }) +
+      T(22, 92, "Strategy", { size: 6.5, fill: "var(--ink-soft)", weight: 600 }) +
+      cols.map((c, i) => T(cx(i) + 12, 92, c, { size: 6.5, fill: "var(--ink-soft)", weight: 600, anchor: "middle" })).join("") +
+      `<line x1="22" x2="298" y1="98" y2="98" stroke="var(--art-line)"/>` +
+      rows.map(([name, vals], r) => {
+        const y = 106 + r * 21;
+        return T(22, y + 9, name, { size: 7.5, weight: 600 }) +
+          vals.map((v, c) => `<rect x="${cx(c)}" y="${y}" width="24" height="13" rx="3" fill="${v < 0 ? "var(--bad)" : "var(--ok)"}" opacity="${0.18 + Math.min(Math.abs(v), 20) / 34}"/>` +
+            T(cx(c) + 12, y + 9.2, v < 0 ? "▼" : "▲", { size: 6.5, anchor: "middle", fill: v < 0 ? "var(--bad)" : "var(--ok)", weight: 700 })).join("");
+      }).join(""));
+  },
+
+  ips: () => {
+    const cards = [["Clients","currentColor"],["In breach","var(--bad)"],["Category","var(--warn)"],["Exit due","var(--ok)"],["Missed exits","var(--bad)"],["Excess cash","currentColor"]];
+    const bw = (292 - 5 * 5) / 6;
+    const tagRow = (y, scheme, tags, n) => {
+      let x = 132, out = `<circle cx="28" cy="${y + 4}" r="5" fill="${soft(25)}"/>` +
+        T(38, y + 7, "Client " + n, { size: 7, weight: 600 }) +
+        T(84, y + 7, scheme, { size: 7, fill: "var(--ink-soft)" });
+      tags.forEach(([s, c]) => {
+        const w = tw(s, 6.2) + 12;
+        out += `<rect x="${x}" y="${y - 2}" width="${w}" height="12" rx="6" fill="${c}" opacity=".18"/>` +
+          T(x + w / 2, y + 6.4, s, { size: 6.2, anchor: "middle", fill: c, weight: 600 });
+        x += w + 4;
+      });
+      return out;
+    };
+    return S(band("Allocate IPS dashboard", "Weekly recon vs model") +
+      cards.map(([l, c], i) => {
+        const x = 14 + i * (bw + 5);
+        return `<rect x="${x}" y="32" width="${bw}" height="28" rx="4" fill="var(--surface)" stroke="var(--art-line)"/>
+          <rect x="${x}" y="32" width="${bw}" height="3" rx="1.5" fill="${c}"/>` +
+          T(x + bw / 2, 50, l, { size: 5.8, anchor: "middle", weight: 600, fill: "var(--ink-soft)" });
+      }).join("") +
+      `<rect x="14" y="68" width="292" height="104" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      T(22, 84, "Clients to action", { size: 8, weight: 700 }) +
+      chips(206, 74, ["Breach list", "Security"], 6.2, 0) +
+      `<rect x="14" y="92" width="292" height="14" fill="currentColor" opacity=".9"/>` +
+      T(22, 101.5, "Client", { size: 6.5, weight: 600, fill: "var(--surface)" }) +
+      T(84, 101.5, "Scheme", { size: 6.5, weight: 600, fill: "var(--surface)" }) +
+      T(132, 101.5, "Breaches", { size: 6.5, weight: 600, fill: "var(--surface)" }) +
+      tagRow(114, "Moderate", [["Domestic MF ▼", "var(--bad)"], ["Fixed income ▼", "var(--bad)"], ["NEW", "currentColor"]], "A") +
+      tagRow(134, "Aggressive", [["Cash + liquid ▲", "var(--warn)"], ["Domestic MF ▼", "var(--bad)"]], "B") +
+      tagRow(154, "Moderate", [["Exit due", "var(--bad)"], ["Commodities ▲", "var(--warn)"]], "C"));
+  },
+
+  health: () => {
+    const rows = [["Active equity MF",[.6,.25,.15]],["Passive / ETF",[.8,.1,.1]],["Direct equity",[.9,.1,0]],["International",[.4,.4,.2]],["Gold and silver",[.85,.15,0]],["InvIT",[.55,.35,.1]],["Debt and hybrid",[.5,.3,.2]]];
+    const r = 32, cx = 62, cy = 98, c = 2 * Math.PI * r;
+    return S(T(14, 20, "Security health monitor", { size: 10.5, weight: 700 }) +
+      chips(14, 28, ["Overview", "Holdings health", "Exits and actions"], 6.5, 0) +
+      `<rect x="14" y="52" width="96" height="120" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      T(62, 66, "Weighted health score", { size: 6.2, anchor: "middle", fill: "var(--ink-soft)" }) +
+      `<circle cx="${cx}" cy="${cy + 4}" r="${r - 4}" fill="none" stroke="var(--art-line)" stroke-width="8"/>
+       <circle cx="${cx}" cy="${cy + 4}" r="${r - 4}" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"
+         stroke-dasharray="${2 * Math.PI * (r - 4) * 0.56} 999" transform="rotate(-90 ${cx} ${cy + 4})"/>` +
+      T(cx, cy + 7, "Score", { size: 8, weight: 700, anchor: "middle" }) +
+      [["Healthy","var(--ok)"],["Watch","var(--warn)"],["Review","var(--bad)"]].map(([l, col], i) =>
+        `<circle cx="24" cy="${144 + i * 9.5}" r="2.5" fill="${col}"/>` + T(30, 146.5 + i * 9.5, l, { size: 6.2, fill: "var(--ink-soft)" })).join("") +
+      `<rect x="118" y="52" width="188" height="120" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      T(126, 66, "Health mix by bucket", { size: 8, weight: 700 }) +
+      rows.map(([label, [g, a, b]], i) => {
+        const y = 80 + i * 13, x = 204, w = 94;
+        return T(126, y + 5, label, { size: 6.4, fill: "var(--ink-soft)" }) +
+          `<rect x="${x}" y="${y}" width="${w * g}" height="6" rx="3" fill="var(--ok)"/>` +
+          `<rect x="${x + w * g + 1}" y="${y}" width="${Math.max(w * a - 1, 0)}" height="6" rx="3" fill="var(--warn)"/>` +
+          (b ? `<rect x="${x + w * (g + a) + 1}" y="${y}" width="${w * b - 1}" height="6" rx="3" fill="var(--bad)"/>` : "");
+      }).join(""));
+  },
+
+  construction: () => {
+    const funds = [["Aditya Birla SL Midcap","Mid","1% before 90D",0],["Bandhan Nifty100 Low Vol","Large","Nil",1],["Bank of India Small Cap","Small","1% before 3M",0],["Baroda BNP Flexi Cap","Flexi","1% before 12M",1],["HDFC Nifty Smallcap 250","Small","Nil",0],["ICICI Pru Nifty Metal ETF","Large","Nil",0]];
+    return S(T(14, 14, "QFRA model portfolio review", { size: 6.2, fill: "var(--ink-soft)", weight: 600 }) +
+      T(14, 28, "Portfolio analytics", { size: 10.5, weight: 700 }) +
+      chips(150, 17, ["1M", "3M", "6M", "1Y", "Max"], 6.5, 2) +
+      `<rect x="14" y="40" width="292" height="132" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      T(22, 56, "Fund universe", { size: 8, weight: 700 }) +
+      `<rect x="250" y="46" width="48" height="14" rx="4" fill="currentColor"/>` +
+      T(274, 55.5, "PDF report", { size: 6.2, weight: 600, anchor: "middle", fill: "var(--surface)" }) +
+      [["Fund",22],["Cap",142],["Exit load",184],["Alloc",280]].map(([h, x]) => T(x, 72, h, { size: 6.2, weight: 600, fill: "var(--ink-soft)" })).join("") +
+      `<line x1="22" x2="298" y1="76" y2="76" stroke="var(--art-line)"/>` +
+      funds.map(([f, cap, load, on], i) => {
+        const y = 88 + i * 14;
+        return T(22, y, f, { size: 6.6 }) +
+          `<rect x="140" y="${y - 7}" width="30" height="10" rx="3" fill="none" stroke="var(--art-line)"/>` +
+          T(155, y + 0.3, cap, { size: 6, anchor: "middle", fill: "var(--ink-soft)" }) +
+          T(184, y, load, { size: 6, fill: "var(--ink-soft)" }) +
+          `<rect x="276" y="${y - 7.5}" width="22" height="11" rx="3" fill="${on ? "currentColor" : "var(--art-line)"}" opacity="${on ? .85 : 1}"/>` +
+          T(287, y + 0.3, on ? "✓" : "0", { size: 6.2, anchor: "middle", weight: 700, fill: on ? "var(--surface)" : "var(--ink-soft)" });
+      }).join(""));
+  },
+
+  mis: () => {
+    const x = (i) => 14 + i * (292 / 12);
+    const seg = (a) => a.map((v, i) => `${x(i)},${170 - v * 1.2}`).join(" ");
+    return S(band("Ionic Allocate MIS", "Inflows, redemptions and STP", 24, "var(--ink)") +
+      kpiRow(32, 34, [["Net inflow","₹ Cr",null,true],["Clients","#"],["New","₹ Cr","currentColor"],["Top-up","₹ Cr","var(--warn)"],["Redemptions","– ₹ Cr","var(--bad)"]]) +
+      T(14, 84, "Monthly net flow by segment", { size: 8, weight: 700 }) +
+      legend(306, 84, [["DPMS", "currentColor"], ["NDPMS", "var(--warn)"], ["AIF", "var(--ok)"], ["Total", "var(--ink)"]]) +
+      grid(14, 306, 96, 170, 4) +
+      `<polyline points="${seg([4,8,12,10,16,20,22,20,26,52,30,28,38])}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/>
+       <polyline points="${seg([2,4,6,6,8,10,12,10,14,40,16,14,22])}" fill="none" stroke="var(--warn)" stroke-width="1.6" stroke-linejoin="round"/>
+       <polyline points="${seg([1,3,4,3,6,8,8,9,10,12,13,12,14])}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+       <polyline points="${seg([0,1,1,2,2,3,2,3,4,5,4,5,6])}" fill="none" stroke="var(--ok)" stroke-width="1.6" stroke-linejoin="round"/>`);
+  }
+};
+
+/* ---------- Data ---------- */
+const GROUPS = [
+  { id: "pinned",   name: "Pinned",                       color: "var(--c-port)" },
+  { id: "navigate", name: "Navigate AIF",                 color: "var(--c-navigate)" },
+  { id: "perf",     name: "Performance & attribution",    color: "var(--c-attr)" },
+  { id: "health",   name: "Portfolio health & compliance", color: "var(--c-port)" },
+  { id: "business", name: "Business MIS",                 color: "var(--c-report)" }
+];
+
+const DASHBOARDS = [
+  { id: "nav",  group: "navigate", art: "navigate",     name: "Navigate AIF portfolio",   desc: "Fund snapshot and NAV vs BSE 500 TRI", url: "https://gravitator1611.github.io/Navigate-Dashboard/" },
+  { id: "attr", group: "perf",     art: "attribution",  name: "Attribution analysis",     desc: "Allocate contribution by month, category, instrument", url: "https://gaurav-1499.github.io/Allocate-Attribution/attribution-dashboard.html" },
+  { id: "risk", group: "perf",     art: "risk",         name: "Attribution & risk",       desc: "Multi-strategy attribution with risk metrics", url: "https://gaurav-1499.github.io/Allocate-Attribution/ionic-attribution-risk.html" },
+  { id: "rm",   group: "perf",     art: "returns",      name: "Scheme returns & risk",    desc: "RM view of returns, Sharpe and Sortino", url: "https://gaurav-1499.github.io/Allocate-Attribution/rm-dashboard.html" },
+  { id: "ips",  group: "health",   art: "ips",          name: "Allocate IPS",             desc: "Client breaches, exits and recon", url: "https://vans5620.github.io/allocate_ips_dashboard/" },
+  { id: "sec",  group: "health",   art: "health",       name: "Security health monitor",  desc: "Holding scores and positions that need attention", url: "https://vans5620.github.io/allocate_security_analysis/" },
+  { id: "pc",   group: "health",   art: "construction", name: "Portfolio analytics",      desc: "QFRA model portfolio review and fund universe", url: "https://gravitator1611.github.io/Portfolio-Construction/" },
+  { id: "mis",  group: "business", art: "mis",          name: "Allocate MIS",             desc: "Inflows, redemptions and STP by segment", url: "https://vans5620.github.io/mis-dashboard/" }
+];
+
+/* ---------- Pins ---------- */
+const PIN_KEY = "ionic-hub-pins";
+let pins = [];
+try { pins = JSON.parse(localStorage.getItem(PIN_KEY) || "[]"); if (!Array.isArray(pins)) pins = []; } catch (e) { pins = []; }
+function savePins() { try { localStorage.setItem(PIN_KEY, JSON.stringify(pins)); } catch (e) {} }
+
+const arrow = '<svg class="open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
+const star = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+const starOutline = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+
+function card(d, color) {
+  const pinned = pins.includes(d.id);
+  return `<div class="card" style="--g:${color}" data-search="${esc((d.name + " " + d.desc).toLowerCase())}">
+    <a class="tile" href="${d.url}" target="_blank" rel="noopener noreferrer">
+      <div class="art">${ART[d.art]()}</div>
+      <div class="body"><h3>${esc(d.name)}</h3><p>${esc(d.desc)}</p>${arrow}</div>
+    </a>
+    <button class="pin" type="button" data-id="${d.id}" aria-pressed="${pinned}" aria-label="${pinned ? "Unpin" : "Pin"} ${esc(d.name)}" title="${pinned ? "Unpin" : "Pin to top"}">${pinned ? star : starOutline}</button>
+  </div>`;
+}
+
+function render() {
+  const groupColor = Object.fromEntries(GROUPS.map(g => [g.id, g.color]));
+  const list = (g) => g.id === "pinned" ? DASHBOARDS.filter(d => pins.includes(d.id)) : DASHBOARDS.filter(d => d.group === g.id && !pins.includes(d.id));
+  document.getElementById("sections").innerHTML = GROUPS.map(g => {
+    const items = list(g);
+    if (!items.length) return "";
+    return `<section id="g-${g.id}" style="--g:${g.color}"><h2>${g.name}</h2>
+      <div class="grid">${items.map(d => card(d, g.id === "pinned" ? groupColor[d.group] : g.color)).join("")}</div></section>`;
+  }).join("");
+  document.getElementById("groupNav").innerHTML = GROUPS.map(g => {
+    const n = list(g).length;
+    return n ? `<li><a href="#g-${g.id}" style="--g:${g.color}"><span class="dot"></span>${g.name}<span class="n">${n}</span></a></li>` : "";
+  }).join("");
+  document.getElementById("count").textContent = `${DASHBOARDS.length} dashboards, one place`;
+  filter();
+}
+
+function filter() {
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  let shown = 0;
+  document.querySelectorAll("#sections section").forEach(sec => {
+    let vis = 0;
+    sec.querySelectorAll(".card").forEach(c => {
+      const ok = !q || c.dataset.search.includes(q);
+      c.hidden = !ok; c.style.display = ok ? "" : "none";
+      if (ok) vis++;
+    });
+    sec.hidden = vis === 0; shown += vis;
+  });
+  document.getElementById("empty").hidden = shown > 0;
+}
+
+document.getElementById("sections").addEventListener("click", e => {
+  const b = e.target.closest(".pin");
+  if (!b) return;
+  const id = b.dataset.id;
+  pins = pins.includes(id) ? pins.filter(p => p !== id) : [...pins, id];
+  savePins(); render();
+});
+
+const q = document.getElementById("q");
+q.addEventListener("input", filter);
+q.addEventListener("keydown", e => {
+  if (e.key === "Enter") { const f = document.querySelector("#sections .card:not([hidden]) .tile"); if (f) window.open(f.href, "_blank", "noopener"); }
+  if (e.key === "Escape") { q.value = ""; filter(); q.blur(); }
+});
+document.addEventListener("keydown", e => { if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); } });
+
+const THEME_KEY = "ionic-hub-theme";
+try { const t = localStorage.getItem(THEME_KEY); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+});
+
+render();
+</script>
+</body>
+</html>
