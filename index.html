@@ -12,7 +12,7 @@
   :root {
     --bg: #EBEFF3; --surface: #FFFFFF; --ink: #142033; --ink-soft: #55627A; --line: #D3DAE3;
     --art-bg: #F4F6F9; --art-line: #DCE2EA;
-    --c-navigate: #2E6B57; --c-attr: #3E4FA8; --c-port: #A8701E; --c-report: #8A3D6B;
+    --c-navigate: #2E6B57; --c-attr: #3E4FA8; --c-port: #A8701E; --c-report: #8A3D6B; --c-ndpms: #1C7287;
     --ok: #2E9A62; --warn: #D59A1E; --bad: #C8463D; --focus: #3E4FA8;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
@@ -22,14 +22,14 @@
     :root:not([data-theme="light"]) {
       --bg: #0F1622; --surface: #172131; --ink: #E6ECF4; --ink-soft: #97A4B8; --line: #26334A;
       --art-bg: #1C2839; --art-line: #2B3A52;
-      --c-navigate: #6CC3A4; --c-attr: #8E9CF0; --c-port: #E2AE5C; --c-report: #DB8BBB;
+      --c-navigate: #6CC3A4; --c-attr: #8E9CF0; --c-port: #E2AE5C; --c-report: #DB8BBB; --c-ndpms: #62C2D6;
       --ok: #5CC48C; --warn: #E8B54A; --bad: #EC7A70; --focus: #8E9CF0;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0F1622; --surface: #172131; --ink: #E6ECF4; --ink-soft: #97A4B8; --line: #26334A;
     --art-bg: #1C2839; --art-line: #2B3A52;
-    --c-navigate: #6CC3A4; --c-attr: #8E9CF0; --c-port: #E2AE5C; --c-report: #DB8BBB;
+    --c-navigate: #6CC3A4; --c-attr: #8E9CF0; --c-port: #E2AE5C; --c-report: #DB8BBB; --c-ndpms: #62C2D6;
     --ok: #5CC48C; --warn: #E8B54A; --bad: #EC7A70; --focus: #8E9CF0;
   }
   *, *::before, *::after { box-sizing: inherit; }
@@ -348,6 +348,47 @@ const ART = {
       }).join(""));
   },
 
+  ndpms: () => {
+    const rows = [["Client A","Allocate Select",[1,1,1]],["Client B","LVPMS",[-1,1,1]],["Client C","CoPilot",[1,-1,1]]];
+    return S(band("NDPMS strategies outlook", "Allocate Select, LVPMS, CoPilot") +
+      chips(14, 31, ["All", "Direct equity", "Mutual funds", "Commodity", "REIT/InvIT"], 6.2, 0) +
+      chips(14, 50, ["IPS review", "Client checklist", "Export deviations"], 6.2, -1, "line") +
+      `<rect x="14" y="70" width="292" height="102" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      T(22, 86, "Client scorecard", { size: 8, weight: 700 }) +
+      T(298, 86, "Click a client to drill in", { size: 6, fill: "var(--ink-soft)", anchor: "end" }) +
+      `<rect x="14" y="94" width="292" height="14" fill="currentColor" opacity=".9"/>` +
+      [["Client",22],["Strategy",92],["1M",204],["3M",240],["6M",276]].map(([h, x]) => T(x, 103.5, h, { size: 6.5, weight: 600, fill: "var(--surface)" })).join("") +
+      rows.map(([c, st, v], r) => {
+        const y = 118 + r * 18;
+        return `<circle cx="27" cy="${y + 2}" r="4.5" fill="${soft(25)}"/>` + T(36, y + 4.5, c, { size: 7, weight: 600 }) +
+          T(92, y + 4.5, st, { size: 7, fill: "var(--ink-soft)" }) +
+          v.map((d, i) => `<rect x="${200 + i * 36}" y="${y - 4}" width="24" height="12" rx="3" fill="${d < 0 ? "var(--bad)" : "var(--ok)"}" opacity=".3"/>` +
+            T(212 + i * 36, y + 4.3, d < 0 ? "▼" : "▲", { size: 6.5, anchor: "middle", weight: 700, fill: d < 0 ? "var(--bad)" : "var(--ok)" })).join("");
+      }).join(""));
+  },
+
+  detracker: () => {
+    const rows = [[18,[3,5,4,7,6,9,11]],[14,[8,7,8,6,7,5,6]],[11,[2,4,3,5,7,6,8]],[9,[5,6,4,4,3,5,4]],[7,[4,3,5,6,8,9,10]]];
+    const spark = (a, x, y) => a.map((v, i) => `${x + i * 9},${y + 8 - v}`).join(" ");
+    return S(T(14, 20, "Direct equity tracker", { size: 10.5, weight: 700 }) +
+      T(306, 20, "NDPMS", { size: 7, fill: "var(--ink-soft)", anchor: "end" }) +
+      chips(14, 28, ["Holdings", "Weights", "Trend"], 6.5, 0) +
+      `<g opacity=".45"><rect x="14" y="50" width="292" height="122" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+      [["Stock",22],["Weight",150],["Trend",230]].map(([h, x]) => T(x, 64, h, { size: 6.5, weight: 600, fill: "var(--ink-soft)" })).join("") +
+      `<line x1="22" x2="298" y1="69" y2="69" stroke="var(--art-line)"/>` +
+      rows.map(([w, a], i) => {
+        const y = 78 + i * 18;
+        return `<rect x="22" y="${y}" width="${60 + (i % 3) * 14}" height="5" rx="2.5" fill="var(--ink-soft)" opacity=".5"/>
+          <rect x="150" y="${y}" width="${w * 3.2}" height="5" rx="2.5" fill="currentColor"/>
+          <polyline points="${spark(a, 230, y - 4)}" fill="none" stroke="${a[6] >= a[0] ? "var(--ok)" : "var(--bad)"}" stroke-width="1.4"/>`;
+      }).join("") + `</g>` +
+      `<rect x="96" y="96" width="128" height="40" rx="10" fill="var(--surface)" stroke="currentColor"/>
+       <g transform="translate(110 106)" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+         <rect x="0" y="8" width="14" height="11" rx="2.5" fill="currentColor" stroke="none"/><path d="M3 8V5a4 4 0 0 1 8 0v3"/></g>` +
+      T(132, 113, "Password protected", { size: 7.5, weight: 700 }) +
+      T(132, 125, "Enter team password", { size: 6.2, fill: "var(--ink-soft)" }));
+  },
+
   mis: () => {
     const x = (i) => 14 + i * (292 / 12);
     const seg = (a) => a.map((v, i) => `${x(i)},${170 - v * 1.2}`).join(" ");
@@ -367,6 +408,7 @@ const ART = {
 const GROUPS = [
   { id: "pinned",   name: "Pinned",                       color: "var(--c-port)" },
   { id: "navigate", name: "Navigate AIF",                 color: "var(--c-navigate)" },
+  { id: "ndpms",    name: "NDPMS",                        color: "var(--c-ndpms)" },
   { id: "perf",     name: "Performance & attribution",    color: "var(--c-attr)" },
   { id: "health",   name: "Portfolio health & compliance", color: "var(--c-port)" },
   { id: "business", name: "Business MIS",                 color: "var(--c-report)" }
@@ -374,6 +416,8 @@ const GROUPS = [
 
 const DASHBOARDS = [
   { id: "nav",  group: "navigate", art: "navigate",     name: "Navigate AIF portfolio",   desc: "Fund snapshot and NAV vs BSE 500 TRI", url: "https://gravitator1611.github.io/Navigate-Dashboard/" },
+  { id: "ndpms", group: "ndpms",   art: "ndpms",        name: "NDPMS strategies outlook", desc: "Client scorecard, IPS review and deviations", url: "https://am2503-am.github.io/ndpms-dashboard/" },
+  { id: "detr", group: "ndpms",    art: "detracker",    name: "Direct equity tracker",    desc: "NDPMS direct equity holdings (password)", url: "https://am2503-am.github.io/ndpms-dashboard/de-tracker/" },
   { id: "attr", group: "perf",     art: "attribution",  name: "Attribution analysis",     desc: "Allocate contribution by month, category, instrument", url: "https://gaurav-1499.github.io/Allocate-Attribution/attribution-dashboard.html" },
   { id: "risk", group: "perf",     art: "risk",         name: "Attribution & risk",       desc: "Multi-strategy attribution with risk metrics", url: "https://gaurav-1499.github.io/Allocate-Attribution/ionic-attribution-risk.html" },
   { id: "rm",   group: "perf",     art: "returns",      name: "Scheme returns & risk",    desc: "RM view of returns, Sharpe and Sortino", url: "https://gaurav-1499.github.io/Allocate-Attribution/rm-dashboard.html" },
