@@ -213,8 +213,7 @@ const ART = {
   attribution: () => {
     const d = [[-3,0],[4,2],[6,3],[9,0],[-2,1],[2,1],[6,8],[5,6],[-2,3],[3,9],[4,10],[-1,1],[-6,0],[16,2],[3,4],[-5,0],[2,1]];
     const zero = 146, s = 2.6, step = 290 / d.length;
-    return S(T(14, 20, "Attribution analysis", { size: 10.5, weight: 700 }) +
-      T(306, 20, "Ionic Allocate", { size: 7, fill: "var(--ink-soft)", anchor: "end" }) +
+    return S(band("Allocate Attribution", "Performance attribution") +
       chips(14, 30, ["Month-on-month", "Custom range", "Time windows"], 7, 0) +
       chips(14, 50, ["All", "Aggressive", "Equity", "Moderate"], 6.5, 0, "line") +
       T(14, 82, "Monthly portfolio contribution", { size: 8, weight: 700 }) +
@@ -233,7 +232,7 @@ const ART = {
     const d = [4,8,14,16,-5,-3,10,9,2,14,16,-3,-18,20,5,-7,3,-9];
     const zero = 128, s = 1.9, step = 290 / d.length;
     const line = d.map((v, i) => `${18 + i * step + step * 0.3},${zero - v * s * 0.5 - 6}`).join(" ");
-    return S(band("Attribution and risk", "Multi-strategy performance") +
+    return S(band("Allocate Attribution and Risk", "Multi-strategy performance") +
       chips(14, 32, ["Aggressive", "Equity", "Moderate"], 6.5, -1, "line") +
       chips(176, 32, ["Month-on-month", "Risk"], 6.5, 0) +
       T(14, 68, "Monthly contribution by asset class", { size: 8, weight: 700 }) +
@@ -250,7 +249,7 @@ const ART = {
     const cols = ["1M","3M","6M","CYTD","FYTD","1Y","SI"];
     const rows = [["Aggressive",[-3,-1,7,4,10,11,15]],["Equity",[-3,-1,9,2,12,6,9]],["Moderate",[-2,0,5,6,8,18,21]]];
     const cx = (c) => 104 + c * 29;
-    return S(band("Ionic Allocate portfolio", "Scheme returns and risk") +
+    return S(band("Allocate Returns and Risk", "Scheme returns by window") +
       `<rect x="14" y="32" width="146" height="18" rx="5" fill="var(--surface)" stroke="currentColor"/>` +
       T(87, 44, "Scheme returns", { size: 7.5, weight: 700, anchor: "middle", fill: "currentColor" }) +
       `<rect x="160" y="32" width="146" height="18" rx="5" fill="var(--art-line)"/>` +
@@ -283,7 +282,7 @@ const ART = {
       });
       return out;
     };
-    return S(band("Allocate IPS dashboard", "Weekly recon vs model") +
+    return S(band("Allocate IPS", "Weekly recon vs model") +
       cards.map(([l, c], i) => {
         const x = 14 + i * (bw + 5);
         return `<rect x="${x}" y="32" width="${bw}" height="28" rx="4" fill="var(--surface)" stroke="var(--art-line)"/>
@@ -305,8 +304,8 @@ const ART = {
   health: () => {
     const rows = [["Active equity MF",[.6,.25,.15]],["Passive / ETF",[.8,.1,.1]],["Direct equity",[.9,.1,0]],["International",[.4,.4,.2]],["Gold and silver",[.85,.15,0]],["InvIT",[.55,.35,.1]],["Debt and hybrid",[.5,.3,.2]]];
     const r = 32, cx = 62, cy = 98, c = 2 * Math.PI * r;
-    return S(T(14, 20, "Security health monitor", { size: 10.5, weight: 700 }) +
-      chips(14, 28, ["Overview", "Holdings health", "Exits and actions"], 6.5, 0) +
+    return S(band("Allocate Security Analysis", "Security health monitor") +
+      chips(14, 30, ["Overview", "Holdings health", "Exits and actions"], 6.5, 0) +
       `<rect x="14" y="52" width="96" height="120" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
       T(62, 66, "Weighted health score", { size: 6.2, anchor: "middle", fill: "var(--ink-soft)" }) +
       `<circle cx="${cx}" cy="${cy + 4}" r="${r - 4}" fill="none" stroke="var(--art-line)" stroke-width="8"/>
@@ -328,10 +327,9 @@ const ART = {
 
   construction: () => {
     const funds = [["Aditya Birla SL Midcap","Mid","1% before 90D",0],["Bandhan Nifty100 Low Vol","Large","Nil",1],["Bank of India Small Cap","Small","1% before 3M",0],["Baroda BNP Flexi Cap","Flexi","1% before 12M",1],["HDFC Nifty Smallcap 250","Small","Nil",0],["ICICI Pru Nifty Metal ETF","Large","Nil",0]];
-    return S(T(14, 14, "QFRA model portfolio review", { size: 6.2, fill: "var(--ink-soft)", weight: 600 }) +
-      T(14, 28, "Portfolio analytics", { size: 10.5, weight: 700 }) +
-      chips(150, 17, ["1M", "3M", "6M", "1Y", "Max"], 6.5, 2) +
-      `<rect x="14" y="40" width="292" height="132" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
+    return S(band("Allocate Model Maker", "QFRA model portfolio review") +
+      chips(14, 30, ["1M", "3M", "6M", "1Y", "Max"], 6.5, 2) + `<g transform="translate(0 7)">` +
+      `<rect x="14" y="40" width="292" height="126" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
       T(22, 56, "Fund universe", { size: 8, weight: 700 }) +
       `<rect x="250" y="46" width="48" height="14" rx="4" fill="currentColor"/>` +
       T(274, 55.5, "PDF report", { size: 6.2, weight: 600, anchor: "middle", fill: "var(--surface)" }) +
@@ -345,12 +343,12 @@ const ART = {
           T(184, y, load, { size: 6, fill: "var(--ink-soft)" }) +
           `<rect x="276" y="${y - 7.5}" width="22" height="11" rx="3" fill="${on ? "currentColor" : "var(--art-line)"}" opacity="${on ? .85 : 1}"/>` +
           T(287, y + 0.3, on ? "✓" : "0", { size: 6.2, anchor: "middle", weight: 700, fill: on ? "var(--surface)" : "var(--ink-soft)" });
-      }).join(""));
+      }).join("") + `</g>`);
   },
 
   ndpms: () => {
     const rows = [["Client A","Allocate Select",[1,1,1]],["Client B","LVPMS",[-1,1,1]],["Client C","CoPilot",[1,-1,1]]];
-    return S(band("NDPMS strategies outlook", "Allocate Select, LVPMS, CoPilot") +
+    return S(band("NDPMS Strategies Outlook", "Allocate Select, LVPMS, CoPilot") +
       chips(14, 31, ["All", "Direct equity", "Mutual funds", "Commodity", "REIT/InvIT"], 6.2, 0) +
       chips(14, 50, ["IPS review", "Client checklist", "Export deviations"], 6.2, -1, "line") +
       `<rect x="14" y="70" width="292" height="102" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
@@ -370,9 +368,8 @@ const ART = {
   detracker: () => {
     const rows = [[18,[3,5,4,7,6,9,11]],[14,[8,7,8,6,7,5,6]],[11,[2,4,3,5,7,6,8]],[9,[5,6,4,4,3,5,4]],[7,[4,3,5,6,8,9,10]]];
     const spark = (a, x, y) => a.map((v, i) => `${x + i * 9},${y + 8 - v}`).join(" ");
-    return S(T(14, 20, "Direct equity tracker", { size: 10.5, weight: 700 }) +
-      T(306, 20, "NDPMS", { size: 7, fill: "var(--ink-soft)", anchor: "end" }) +
-      chips(14, 28, ["Holdings", "Weights", "Trend"], 6.5, 0) +
+    return S(band("NDPMS Direct Equity", "Direct equity tracker") +
+      chips(14, 30, ["Holdings", "Weights", "Trend"], 6.5, 0) +
       `<g opacity=".45"><rect x="14" y="50" width="292" height="122" rx="6" fill="var(--surface)" stroke="var(--art-line)"/>` +
       [["Stock",22],["Weight",150],["Trend",230]].map(([h, x]) => T(x, 64, h, { size: 6.5, weight: 600, fill: "var(--ink-soft)" })).join("") +
       `<line x1="22" x2="298" y1="69" y2="69" stroke="var(--art-line)"/>` +
@@ -392,7 +389,7 @@ const ART = {
   mis: () => {
     const x = (i) => 14 + i * (292 / 12);
     const seg = (a) => a.map((v, i) => `${x(i)},${170 - v * 1.2}`).join(" ");
-    return S(band("Ionic Allocate MIS", "Inflows, redemptions and STP", 24, "var(--ink)") +
+    return S(band("Combined MIS", "Inflows, redemptions and STP") +
       kpiRow(32, 34, [["Net inflow","₹ Cr",null,true],["Clients","#"],["New","₹ Cr","currentColor"],["Top-up","₹ Cr","var(--warn)"],["Redemptions","– ₹ Cr","var(--bad)"]]) +
       T(14, 84, "Monthly net flow by segment", { size: 8, weight: 700 }) +
       legend(306, 84, [["DPMS", "currentColor"], ["NDPMS", "var(--warn)"], ["AIF", "var(--ok)"], ["Total", "var(--ink)"]]) +
@@ -415,16 +412,16 @@ const GROUPS = [
 ];
 
 const DASHBOARDS = [
-  { id: "nav",  group: "navigate", art: "navigate",     name: "Navigate AIF portfolio",   desc: "Fund snapshot and NAV vs BSE 500 TRI", url: "https://gravitator1611.github.io/Navigate-Dashboard/" },
-  { id: "ndpms", group: "ndpms",   art: "ndpms",        name: "NDPMS strategies outlook", desc: "Client scorecard, IPS review and deviations", url: "https://am2503-am.github.io/ndpms-dashboard/" },
-  { id: "detr", group: "ndpms",    art: "detracker",    name: "Direct equity tracker",    desc: "NDPMS direct equity holdings (password)", url: "https://am2503-am.github.io/ndpms-dashboard/de-tracker/" },
-  { id: "attr", group: "perf",     art: "attribution",  name: "Attribution analysis",     desc: "Allocate contribution by month, category, instrument", url: "https://gaurav-1499.github.io/Allocate-Attribution/attribution-dashboard.html" },
-  { id: "risk", group: "perf",     art: "risk",         name: "Attribution & risk",       desc: "Multi-strategy attribution with risk metrics", url: "https://gaurav-1499.github.io/Allocate-Attribution/ionic-attribution-risk.html" },
-  { id: "rm",   group: "perf",     art: "returns",      name: "Scheme returns & risk",    desc: "RM view of returns, Sharpe and Sortino", url: "https://gaurav-1499.github.io/Allocate-Attribution/rm-dashboard.html" },
+  { id: "nav",  group: "navigate", art: "navigate",     name: "Ionic Navigate AIF",   desc: "Fund snapshot and NAV vs BSE 500 TRI", url: "https://gravitator1611.github.io/Navigate-Dashboard/" },
+  { id: "ndpms", group: "ndpms",   art: "ndpms",        name: "NDPMS Strategies Outlook", desc: "Client scorecard, IPS review and deviations", url: "https://am2503-am.github.io/ndpms-dashboard/" },
+  { id: "detr", group: "ndpms",    art: "detracker",    name: "NDPMS Direct Equity",    desc: "NDPMS direct equity holdings (password)", url: "https://am2503-am.github.io/ndpms-dashboard/de-tracker/" },
+  { id: "attr", group: "perf",     art: "attribution",  name: "Allocate Attribution",     desc: "Allocate contribution by month, category, instrument", url: "https://allocate-attribution.pages.dev/attribution-dashboard" },
+  { id: "risk", group: "perf",     art: "risk",         name: "Allocate Attribution and Risk",       desc: "Multi-strategy attribution with risk metrics", url: "https://allocate-attribution.pages.dev/ionic-attribution-risk" },
+  { id: "rm",   group: "perf",     art: "returns",      name: "Allocate Returns and Risk",    desc: "RM view of returns, Sharpe and Sortino", url: "https://allocate-attribution.pages.dev/rm-dashboard" },
   { id: "ips",  group: "health",   art: "ips",          name: "Allocate IPS",             desc: "Client breaches, exits and recon", url: "https://vans5620.github.io/allocate_ips_dashboard/" },
-  { id: "sec",  group: "health",   art: "health",       name: "Security health monitor",  desc: "Holding scores and positions that need attention", url: "https://vans5620.github.io/allocate_security_analysis/" },
-  { id: "pc",   group: "health",   art: "construction", name: "Portfolio analytics",      desc: "QFRA model portfolio review and fund universe", url: "https://gravitator1611.github.io/Portfolio-Construction/" },
-  { id: "mis",  group: "business", art: "mis",          name: "Allocate MIS",             desc: "Inflows, redemptions and STP by segment", url: "https://vans5620.github.io/mis-dashboard/" }
+  { id: "sec",  group: "health",   art: "health",       name: "Allocate Security Analysis",  desc: "Holding scores and positions that need attention", url: "https://vans5620.github.io/allocate_security_analysis/" },
+  { id: "pc",   group: "health",   art: "construction", name: "Allocate Model Maker",      desc: "QFRA model portfolio review and fund universe", url: "https://gravitator1611.github.io/Portfolio-Construction/" },
+  { id: "mis",  group: "business", art: "mis",          name: "Combined MIS",             desc: "Inflows, redemptions and STP by segment", url: "https://vans5620.github.io/mis-dashboard/" }
 ];
 
 /* ---------- Pins ---------- */
